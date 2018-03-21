@@ -27,7 +27,7 @@ router.get('/02/generic.html', function(req, res, next) {
 });
 
 router.get('/02/elements.html', function(req, res, next) {
-  res.render('elements.html', { title: 'Express' });
+  res.render('elements.html', { title: 'Expres' });
 });
 
 router.get('/03', function(req, res, next) {
