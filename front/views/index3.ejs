@@ -198,8 +198,45 @@
 					<footer id="footer">
 						<div class="inner">
 							<section>
+									<div class="form-header">
+									<% if (Object.keys(errors).length === 0) { %>
 								<h2>Get in touch</h2>
-								<form method="post" action="/03">
+								<% } else { %>
+									<h2 class="errors-heading">Oops, please correct the following:</h2>
+									<ul class="errors-list">
+									  <% Object.values(errors).forEach(error => { %>
+										<li><%= error.msg %></li>
+									  <% }) %>
+									</ul>
+								  <% } %>
+								</div>
+								<form method="post" action="/03" novalidate>
+									<div class="form-field <%= errors.name ? 'form-field-invalid' : '' %>">
+									  <label for="name">Name</label>
+									  <input class="input" id="name" name="name" type="text" value="<%= data.name %>" />
+									  <% if (errors.name) { %>
+										<div class="error"><%= errors.name.msg %></div>
+									  <% } %>
+									</div>
+									<div class="form-field <%= errors.email ? 'form-field-invalid' : '' %>">
+									  <label for="email">Email</label>
+									  <input class="input" id="email" name="email" type="email" value="<%= data.email %>" />
+									  <% if (errors.email) { %>
+										<div class="error"><%= errors.email.msg %></div>
+									  <% } %>
+									</div>
+									<div class="form-field <%= errors.message ? 'form-field-invalid' : '' %>">
+											<label for="message">Message</label>
+											<textarea class="input" id="message" name="message" rows="4" autofocus><%= data.message %></textarea>
+											<% if (errors.message) { %>
+											  <div class="error"><%= errors.message.msg %></div>
+											<% } %>
+										  </div>
+									<div class="form-actions">
+									  <button class="btn" type="submit">Send</button>
+									</div>
+								  </form>
+								<!-- <form method="post" action="/03" >
 									<div class="field half first">
 										<input type="text" name="name" id="name" placeholder="Name" />
 									</div>
@@ -212,7 +249,7 @@
 									<ul class="actions">
 										<li><input type="submit" value="Send" class="special" /></li>
 									</ul>
-								</form>
+								</form> -->
 							</section>
 							<section>
 								<h2>Follow</h2>

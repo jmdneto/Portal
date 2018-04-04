@@ -1,60 +1,12 @@
-var nodemailer = require('nodemailer');
+// var nodemailer = require('nodemailer');
 var express = require('express');
 var router = express.Router();
-//var handleSayHello = require('./mail.js');
-
-
-router.post('/03', handleSayHello); // handle the route at yourdomain.com/sayHello
-
-
-function handleSayHello(req, res) {
-  // Not the movie transporter!
-
-  var transporter = nodemailer.createTransport({
-    host: 'smtp.ethereal.email',
-    port:587,
-    secure:false,
-    auth: {
-        user: 'acc7iymkqk2e73bm@ethereal.email', // Your email id
-        pass: 'Qbbgmxz6ZZFGaKEHzz' // Your password
-    },
-    tls: {
-      rejectUnauthorized: false
-  }
-
-  // var transporter = nodemailer.createTransport({
-  //     service: 'Gmail',
-  //     auth: {
-  //         user: 'jmdneto@gmail.com', // Your email id
-  //         pass: 'joaoguilherme2708' // Your password
-  //     }
-  });
-
-var text = 'Hello world from \n\n' + req.body.name + '\n' + req.body.email + '\n' + req.body.message;
-
-
-var mailOptions = {
-  from: 'jmdneto@gmail.com', // sender address
-  to: 'acc7iymkqk2e73bm@ethereal.email', // list of receivers
-  subject: 'Email de contato do Site', // Subject line
-  text: text //, // plaintext body
-  // html: '<b>Hello world ✔</b>' // You can choose to send an HTML body instead
-};
-
-transporter.sendMail(mailOptions, function(error, info){
-  if(error){
-      console.log(error);
-     // res.json({yo: 'error'});
-    //  res.render('index3', { title: 'Express' });
-    res.redirect('/03');
-     }else{
-      console.log('Message sent: ' + info.response);
-      // res.render('index3', { title: 'Express' });
-      //res.json({yo: info.response});
-      res.redirect('/03');
-  };
-});
-}
+var handleSayHello = require('../mail.js');
+var { check, validationResult } = require('express-validator/check');
+var { sanitizeBody } = require('express-validator/filter');
+var { matchedData } = require('express-validator/filter');
+var flash = require('express-flash');
+var path = require('path');
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
@@ -86,7 +38,11 @@ router.get('/02/elements.html', function(req, res, next) {
 });
 
 router.get('/03', function(req, res, next) {
-  res.render('index3', { title: 'Express' });
+  res.render('index3', {
+    
+    data:{},
+  errors:{} 
+})
 });
 
 router.get('/03/generic.html', function(req, res, next) {
@@ -98,8 +54,78 @@ router.get('/03/elements.html', function(req, res, next) {
 });
 
 
+// router.post('/03', handleSayHello.resources); // handle the route at yourdomain.com/sayHello
+// router.post('/03/generic.html', handleSayHello.resources); // handle the route at yourdomain.com/sayHello
+  
+// router.post('/03', function(req, res, next) {
+// res.render('/03',{
+//     data: req.body,
+//     errors: {
+//             name: { 
+//                 msg: 'É necessário o preencimento do campo nome'},
+//             email: { 
+//                 msg: 'É necessário o preencimento do campo e-mail'},
+//           message: { 
+//                 msg: 'É necessário o preencimento do campo mensagem'}
+//     }
+//   })
+// });
+// router.post('/03', function(req,res){
+// res.render('index3',{
+//   data: req.body,
+//   errors: {
+//     name: { 
+//         msg: 'É necessário o preencimento do campo nome'},
+//     email: { 
+//         msg: 'É necessário o preencimento do campo e-mail'},
+//   message: { 
+//         msg: 'É necessário o preencimento do campo mensagem'}
+// }
 
 
+// })
+
+// })
+
+router.post('/03', [
+  check('name')
+    .isLength({ min: 1 })
+    .withMessage('Nome is required')
+    .trim(),
+  check('email')
+    .isEmail()
+    .withMessage('That email doesn‘t look right')
+    .trim()
+    .normalizeEmail()
+], function (req, res) {
+  var errors = validationResult(req)
+  if (!errors.isEmpty()){
+    res.render('index3', {
+    data: req.body,
+    errors: errors.mapped()
+      }
+    )
+  }
+  else 
+  {
+    // return res.render('index3', {
+    // data: req.body,
+    // errors: errors.mapped()
+    req.flash('success', 'Thanks for the message! I‘ll be in touch :)')
+    var data = matchedData(req)
+    console.log('Sanitized:', data) 
+    handleSayHello.resources(req,res)
+    //res.redirect('/03')
+      }
+  //   )
+  // }
+
+  
+  //req.flash('success', 'Thanks for the message! I‘ll be in touch :)')
+  //res.redirect('/03')
+}
+);
 
 
 module.exports = router;
+//exports.resources = errors;
